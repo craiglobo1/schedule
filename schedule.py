@@ -12,26 +12,33 @@ def schedule(sch1,bounds1,sch2,bounds2,duration):
     else:
         combinedSchedule.append([bounds2[1],'24:00'])
     print(combinedSchedule)
+
     i = 0
     while i < len(combinedSchedule)-1:
         start1 = combinedSchedule[i][0]
         end1 = combinedSchedule[i][1]
         start2 = combinedSchedule[i+1][0]
-        end2 =combinedSchedule[i+1][1]
-        if compareTime(end1,start2) in [1,0] and compareTime(end1,end2) in [1,0]:
-            combinedSchedule.pop(i+1)
-            print('condition one')
-            i-= 1
-        elif compareTime(end1,start2) in [1,0]:
-            entry = [start1,end2]
-            combinedSchedule.pop(i)
-            combinedSchedule.pop(i)
-            combinedSchedule.insert(i-1,entry)
-            print('condition two')
-            i-= 2
+        end2 = combinedSchedule[i+1][1]
+        if compareTime(end1,start2) in [1,0]:
+            if compareTime(end2,end1) in [1,0]:
+                TempEnd = end2
+                combinedSchedule.pop(i+1)
+                combinedSchedule[i][1] = TempEnd
+                i-=1
+            else:
+                combinedSchedule.pop(i+1)
+                i-=1
         i+=1
-        return combinedSchedule
-            
+    i = 0
+    output= []
+    while i < len(combinedSchedule)-1:
+        end1 = combinedSchedule[i][1]
+        start2 = combinedSchedule[i+1][0]
+        if timeDifference(end1,start2) >= duration:
+            output.append([end1,start2])
+        i+=1
+    
+    return output
 
 
 def compareTime(time1,time2):
@@ -45,6 +52,7 @@ def compareTime(time1,time2):
         return -1
     else:
         return 0
+        
 def timeDifference(time1,time2):
     time1 = time1.split(':')
     time2 = time2.split(':')
@@ -84,22 +92,3 @@ if __name__ == '__main__':
     bounds2 = ['10:30','17:00']
     duration = 30
     print(schedule(sch1,bounds1,sch2,bounds2,duration))
-
-'''
-1) merge lists in order
-2) insert bounds 
-3)make combined schedule
-4) add to complete schedule
-    1)if end1 is > start2 and end1 >= end2
-        skip 2
-    2)if only end1 is >= start2
-        add with bounds start1,end2
-    3)else skip
-5) create output
-    repeat all
-        end1,start2
-6)check if all are within duration
-
-['0:00',''10:00'],['11:00','16:00'],['17:00','24:00']
-
-'''
